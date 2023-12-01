@@ -41,7 +41,7 @@ defmodule AdventOfCode.Input do
   defp cache_path(day, year), do: Path.join(cache_dir(), "/#{year}/#{day}.aocinput")
   defp in_cache?(day, year), do: File.exists?(cache_path(day, year))
 
-  defp store_in_cache!(day, year, input) do
+  defp store_in_cache!(input, day, year) do
     path = cache_path(day, year)
     :ok = path |> Path.dirname() |> File.mkdir_p()
     :ok = File.write(path, input)
@@ -50,18 +50,17 @@ defmodule AdventOfCode.Input do
   defp from_cache!(day, year), do: File.read!(cache_path(day, year))
 
   defp download!(day, year) do
-    {:ok, {{'HTTP/1.1', 200, 'OK'}, _, input}} =
-      :httpc.request(
-        :get,
-        {'https://adventofcode.com/#{year}/day/#{day}/input', headers()},
-        [],
-        []
-      )
-
-    store_in_cache!(day, year, input)
-
-    to_string(input)
+    Req.Request.new(method: :get, url: url(day, year))
+    |> Req.Request.put_header(
+      "cookie",
+      "session=#{Keyword.get(config(), :session_cookie)}"
+    )
+    |> Req.get!()
+    |> Map.get(:body)
+    |> store_in_cache!(day, year)
   end
+
+  defp url(day, year), do: "https://adventofcode.com/#{year}/day/#{day}/input"
 
   defp cache_dir do
     config()
@@ -81,10 +80,4 @@ defmodule AdventOfCode.Input do
 
   defp config, do: Application.get_env(:advent_of_code, __MODULE__)
   defp allow_network?, do: Keyword.get(config(), :allow_network?, false)
-
-  defp headers,
-    do: [
-      {'user-agent', 'github.com/mhanberg/advent-of-code-elixir-starter by aoc@mitchellhanberg.com'},
-      {'cookie', String.to_charlist("session=" <> Keyword.get(config(), :session_cookie))}
-    ]
 end
