@@ -45,6 +45,8 @@ defmodule AdventOfCode.Input do
     path = cache_path(day, year)
     :ok = path |> Path.dirname() |> File.mkdir_p()
     :ok = File.write(path, input)
+
+    input
   end
 
   defp from_cache!(day, year), do: File.read!(cache_path(day, year))

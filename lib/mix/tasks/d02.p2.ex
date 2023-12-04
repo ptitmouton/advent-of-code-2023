@@ -5,6 +5,7 @@ defmodule Mix.Tasks.D02.P2 do
 
   @shortdoc "Day 02 Part 2"
   def run(args) do
+    Mix.Task.run("app.start")
     input = AdventOfCode.Input.get!(2)
 
     if Enum.member?(args, "-b"),
