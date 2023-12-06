@@ -3,9 +3,9 @@ defmodule AdventOfCode.Day06 do
     input
     |> parse_races()
     |> Enum.map(fn {time, distance} ->
-        get_possible_distances(time)
-        |> Enum.filter(&(&1 > distance))
-        |> length()
+      get_possible_distances(time)
+      |> Enum.filter(&(&1 > distance))
+      |> length()
     end)
     |> Enum.product()
   end
@@ -15,29 +15,58 @@ defmodule AdventOfCode.Day06 do
       input
       |> parse_races()
       |> Enum.reduce({"", ""}, fn {t, d}, {time, distance} ->
-        { time <> Integer.to_string(t), distance <> Integer.to_string(d) }
+        {time <> Integer.to_string(t), distance <> Integer.to_string(d)}
       end)
 
     time = String.to_integer(time)
     distance = String.to_integer(distance)
-      IO.inspect({ time, distance})
 
-    get_min_press_time(time, distance)
-    |> IO.inspect()
-
-    # get_max_press(time, distance)
-    # |> IO.inspect()
+    get_max_press_time(time, distance) - get_min_press_time(time, distance) + 1
   end
 
   defp get_min_press_time(total_time, max_distance),
-    do: get_min_press_time(0, total_time, max_distance)
-  defp get_min_press_time(press_time, total_time, max_distance) do
+    do: get_min_press_time(1, total_time, max_distance, trunc(total_time / 100))
+
+  defp get_min_press_time(press_time, total_time, max_distance, step) do
     distance =
       get_distance_for_button_press(press_time, total_time)
+
     if distance > max_distance do
-      press_time
+      if step == 1 do
+        press_time
+      else
+        get_min_press_time(
+          press_time - step - 1,
+          total_time,
+          max_distance,
+          trunc(step / 10) + 1
+        )
+      end
     else
-      get_distance_for_button_press(press_time + 1, total_time)
+      get_min_press_time(press_time + step, total_time, max_distance, step)
+    end
+  end
+
+  defp get_max_press_time(total_time, max_distance),
+    do: get_max_press_time(total_time - 1, total_time, max_distance, trunc(total_time / 100))
+
+  defp get_max_press_time(press_time, total_time, max_distance, step) do
+    distance =
+      get_distance_for_button_press(press_time, total_time)
+
+    if distance > max_distance do
+      if step == 1 do
+        press_time
+      else
+        get_max_press_time(
+          press_time + step + 1,
+          total_time,
+          max_distance,
+          trunc(step / 10) + 1
+        )
+      end
+    else
+      get_max_press_time(press_time - step, total_time, max_distance, step)
     end
   end
 
@@ -48,9 +77,9 @@ defmodule AdventOfCode.Day06 do
     end)
   end
 
-
   defp get_distance_for_button_press(press_time, total_time) do
     unpress_time = total_time - press_time
+
     speed =
       Range.new(1, press_time)
       |> Enum.reduce(0, fn _timer, speed ->
