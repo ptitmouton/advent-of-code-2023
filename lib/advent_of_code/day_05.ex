@@ -17,15 +17,9 @@ defmodule AdventOfCode.Day05 do
     {{seed_count, seed_stream}, maps} =
       parse_almanach(input, seed_range: true)
 
-    IO.inspect("planting #{seed_count} seeds")
-
     seed_stream
     |> Stream.with_index()
     |> Stream.map(fn {seed, i} ->
-      if rem(i, 5000000) == 0 do
-        IO.inspect("progress: #{i / seed_count * 100}%")
-      end
-
       maps
       |> Enum.reduce(seed, fn {_, movements}, acc ->
         apply_movements(acc, movements)
@@ -59,6 +53,7 @@ defmodule AdventOfCode.Day05 do
   end
 
   defp parse_almanach(input, options \\ [])
+
   defp parse_almanach(input, options) do
     input
     |> String.split("\n\n")
@@ -70,7 +65,7 @@ defmodule AdventOfCode.Day05 do
     end)
   end
 
-  defp parse_seeds(line, [seed_range: true]) do
+  defp parse_seeds(line, seed_range: true) do
     chunks =
       find_numbers(line)
       |> Enum.chunk_every(2)
@@ -85,17 +80,17 @@ defmodule AdventOfCode.Day05 do
       Range.new(start, start + length - 1)
     end)
     |> Enum.reduce(&Stream.concat/2)
-    |> then(&({total, &1}))
+    |> then(&{total, &1})
   end
+
   defp parse_seeds(line, _options) do
     numbers = find_numbers(line)
 
-
-    {length(numbers), 
-      Stream.unfold(numbers, fn
-        [] -> nil
-        [next | rest] -> {next, rest}
-      end)}
+    {length(numbers),
+     Stream.unfold(numbers, fn
+       [] -> nil
+       [next | rest] -> {next, rest}
+     end)}
   end
 
   defp parse_map(input) do
