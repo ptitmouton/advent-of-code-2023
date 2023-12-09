@@ -14,12 +14,11 @@ defmodule AdventOfCode.Day05 do
   end
 
   def part2(input) do
-    {{seed_count, seed_stream}, maps} =
+    {{_, seed_stream}, maps} =
       parse_almanach(input, seed_range: true)
 
     seed_stream
-    |> Stream.with_index()
-    |> Stream.map(fn {seed, i} ->
+    |> Stream.map(fn seed ->
       maps
       |> Enum.reduce(seed, fn {_, movements}, acc ->
         apply_movements(acc, movements)
