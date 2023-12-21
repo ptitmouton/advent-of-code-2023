@@ -9,7 +9,6 @@ defmodule AdventOfCode.Day09Test do
   10 13 16 21 30 45
   """
 
-  @tag :skip
   test "part1" do
     114 = part1(@input)
   end
